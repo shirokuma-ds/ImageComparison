@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "src/test/java/org/shirokuma/features",
+        features = "src/test/resources/features",
         glue = {"org.shirokuma.steps", "org.shirokuma.hooks"},
         plugin = {"json:target/destination/cucumber.json"},
         tags = "@LoginBlibliFeature"

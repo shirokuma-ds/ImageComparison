@@ -1,8 +1,10 @@
 package org.shirokuma.utils;
 
+import com.github.romankh3.image.comparison.model.Rectangle;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebElement;
 import org.shirokuma.pages.BasePage;
 
 import javax.imageio.ImageIO;
@@ -16,7 +18,7 @@ public class ImageUtility {
     public static byte[] toByteArray(BufferedImage bi, String format) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            ImageIO.write(bi, "png", baos);
+            ImageIO.write(bi, format, baos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -44,6 +46,11 @@ public class ImageUtility {
         }
 
         return bufferedImage;
+    }
+
+    public static Rectangle getRectangle(WebElement element) {
+        org.openqa.selenium.Rectangle rect = element.getRect();
+        return new Rectangle(rect.getX(), rect.getY(), rect.getX() + rect.getWidth(), rect.getY() + rect.getHeight());
     }
 
 }

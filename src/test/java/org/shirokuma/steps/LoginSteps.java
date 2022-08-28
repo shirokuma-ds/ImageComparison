@@ -4,6 +4,7 @@ import com.github.romankh3.image.comparison.ImageComparison;
 import com.github.romankh3.image.comparison.ImageComparisonUtil;
 import com.github.romankh3.image.comparison.model.ImageComparisonResult;
 import com.github.romankh3.image.comparison.model.ImageComparisonState;
+import com.github.romankh3.image.comparison.model.Rectangle;
 import io.cucumber.java.After;
 import io.cucumber.java.Scenario;
 import io.cucumber.java.en.Given;
@@ -15,6 +16,7 @@ import org.shirokuma.pages.LoginPage;
 import org.shirokuma.utils.ImageUtility;
 
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 
 public class LoginSteps {
 
@@ -37,30 +39,73 @@ public class LoginSteps {
         homePage.click(homePage.getLocator(), "login_button");
     }
 
-    @Then("verify that the login page is as expected")
-    public void verifyThatTheLoginPageIsAsExpected() {
-        loginPage.typeInto(loginPage.getLocator(), "username_field", "asdasd");
-        loginPage.typeInto(loginPage.getLocator(), "password_field", "gqwerqwe");
+    @Then("verify that the login page UI is as expected with UI requirement {int}")
+    public void verifyThatTheLoginPageIsAsExpected(int req) {
         Assert.assertTrue(loginPage.getElement(loginPage.getLocator(), "username_field").isDisplayed());
         Assert.assertTrue(loginPage.getElement(loginPage.getLocator(), "password_field").isDisplayed());
+
         BufferedImage actualImage = ImageUtility.getFullPageScreenshot("login_page_screenshot", "png", "target");
         StringBuilder sb = new StringBuilder(System.getProperty("user.dir"));
-        sb.append("\\src\\test\\resources\\expectedImages\\login_page_expected_screenshot.png");
+        sb.append("\\src\\test\\resources\\expectedImages");
+        sb.append(String.format("\\login_page_expected_screenshot_%d.png", req));
         BufferedImage expectedImage = ImageComparisonUtil.readImageFromResources(sb.toString());
-        ImageComparison imageComparison = new ImageComparison(expectedImage, actualImage);
-        imageComparisonResult = imageComparison.compareImages();
+
+        switch (req) {
+            case 1:
+
+                imageComparisonResult = compareOriginalBlibliLoginPage(expectedImage, actualImage);
+                break;
+            case 2:
+                imageComparisonResult = compareBlibliLoginPageWithoutGoogleAndFacebookExpected(expectedImage, actualImage);
+                break;
+            case 3:
+                imageComparisonResult = compareBlibliLoginPageWithoutGoogleAndFacebook(expectedImage, actualImage);
+                break;
+            case 4:
+                imageComparisonResult = compareWithBlibliImageMove(expectedImage, actualImage, 5.0);
+                break;
+            case 5:
+                imageComparisonResult = compareWithBlibliImageMove(expectedImage, actualImage, 10.0);
+                break;
+        }
+
         Assert.assertEquals(ImageComparisonState.MATCH, imageComparisonResult.getImageComparisonState());
+    }
+
+    private ImageComparisonResult compareOriginalBlibliLoginPage(BufferedImage expected, BufferedImage actual) {
+        ImageComparison imageComparison = new ImageComparison(expected, actual);
+        return imageComparison.compareImages();
+    }
+
+    private ImageComparisonResult compareBlibliLoginPageWithoutGoogleAndFacebook(BufferedImage expected, BufferedImage actual) {
+        Rectangle rectFacebook = ImageUtility.getRectangle(loginPage.getElement(loginPage.getLocator(), "facebook_button"));
+        Rectangle rectGoogle = ImageUtility.getRectangle(loginPage.getElement(loginPage.getLocator(), "google_button"));
+        ImageComparison imageComparison = new ImageComparison(expected, actual)
+//                .setExcludedAreas(List.of(new Rectangle(1040, 528, 1458, 595)))
+                .setExcludedAreas(Arrays.asList(rectFacebook, rectGoogle))
+                .setExcludedRectangleFilling(true, 75)
+                .setDrawExcludedRectangles(true);
+        return imageComparison.compareImages();
+    }
+
+    private ImageComparisonResult compareBlibliLoginPageWithoutGoogleAndFacebookExpected(BufferedImage expected, BufferedImage actual) {
+        ImageComparison imageComparison = new ImageComparison(expected, actual);
+        return imageComparison.compareImages();
+    }
+
+    private ImageComparisonResult compareWithBlibliImageMove(BufferedImage expected, BufferedImage actual, Double allowPercentage) {
+        ImageComparison imageComparison = new ImageComparison(expected, actual)
+                .setAllowingPercentOfDifferentPixels(allowPercentage);
+        return imageComparison.compareImages();
     }
 
     @After(order = 1)
     public void afterLogin(Scenario scenario) {
-        System.out.println("After Login Called");
-        if (scenario.isFailed() && imageComparisonResult != null) {
+        if (imageComparisonResult != null) {
             byte[] bytes = ImageUtility.toByteArray(imageComparisonResult.getResult(), "png");
-            scenario.attach(bytes, "image/png", "Login Page Comparison Failed Screenshot");
+            scenario.attach(bytes, "image/png", "Login Page Comparison Screenshot");
             StringBuilder sb = new StringBuilder(System.getProperty("user.dir"));
             sb.append("\\target");
-
         }
     }
 }

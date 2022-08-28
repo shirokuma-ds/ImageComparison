@@ -14,15 +14,15 @@ public class WebElementUtility {
             throw new RuntimeException(e);
         }
 
-        By by;
+        By locator;
 
         try {
-            by = (By) field.get(obj);
+            locator = (By) field.get(obj);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
-        return by;
+        return locator;
     }
 
 }
