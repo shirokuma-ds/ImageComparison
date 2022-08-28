@@ -36,13 +36,13 @@ public class LoginSteps {
 
     @When("user go to the login page")
     public void userGoToTheLoginPage() {
-        homePage.click(homePage.getLocator(), "login_button");
+        homePage.click("login_button");
     }
 
     @Then("verify that the login page UI is as expected with UI requirement {int}")
     public void verifyThatTheLoginPageIsAsExpected(int req) {
-        Assert.assertTrue(loginPage.getElement(loginPage.getLocator(), "username_field").isDisplayed());
-        Assert.assertTrue(loginPage.getElement(loginPage.getLocator(), "password_field").isDisplayed());
+        Assert.assertTrue(loginPage.getElement("username_field").isDisplayed());
+        Assert.assertTrue(loginPage.getElement("password_field").isDisplayed());
 
         BufferedImage actualImage = ImageUtility.getFullPageScreenshot("login_page_screenshot", "png", "target");
         StringBuilder sb = new StringBuilder(System.getProperty("user.dir"));
@@ -78,8 +78,8 @@ public class LoginSteps {
     }
 
     private ImageComparisonResult compareBlibliLoginPageWithoutGoogleAndFacebook(BufferedImage expected, BufferedImage actual) {
-        Rectangle rectFacebook = ImageUtility.getRectangle(loginPage.getElement(loginPage.getLocator(), "facebook_button"));
-        Rectangle rectGoogle = ImageUtility.getRectangle(loginPage.getElement(loginPage.getLocator(), "google_button"));
+        Rectangle rectFacebook = ImageUtility.getRectangle(loginPage.getElement("facebook_button"));
+        Rectangle rectGoogle = ImageUtility.getRectangle(loginPage.getElement("google_button"));
         ImageComparison imageComparison = new ImageComparison(expected, actual)
 //                .setExcludedAreas(List.of(new Rectangle(1040, 528, 1458, 595)))
                 .setExcludedAreas(Arrays.asList(rectFacebook, rectGoogle))

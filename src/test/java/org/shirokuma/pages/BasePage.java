@@ -6,13 +6,14 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.shirokuma.locator.PageLocator;
 import org.shirokuma.utils.WebElementUtility;
 
 import java.time.Duration;
 
 ;
 
-public class BasePage {
+public abstract class BasePage {
 
     private static WebDriver driver;
 
@@ -27,22 +28,24 @@ public class BasePage {
         return driver;
     }
 
+    public abstract PageLocator getLocator();
+
     public void open(String URL) {
         getDriver().get(URL);
     }
 
-    public WebElement getElement(Object obj, String fieldName) {
-        By locator = WebElementUtility.getLocator(obj, fieldName);
+    public WebElement getElement(String fieldName) {
+        By locator = WebElementUtility.getLocator(getLocator(), fieldName);
         return new WebDriverWait(getDriver(), Duration.ofSeconds(10))
                 .until(ExpectedConditions.presenceOfElementLocated(locator));
     }
 
-    public void click(Object obj, String fieldName) {
-        getElement(obj, fieldName).click();
+    public void click(String fieldName) {
+        getElement(fieldName).click();
     }
 
-    public void typeInto(Object obj, String fieldName, String text) {
-        getElement(obj, fieldName).sendKeys(text);
+    public void typeInto(String fieldName, String text) {
+        getElement(fieldName).sendKeys(text);
     }
 
 }
