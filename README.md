@@ -1,4 +1,4 @@
-# ImageComparison
+# Image Comparison Automation
 
 Automation Project using Selenium 4 and Cucumber 7.
 
